@@ -9,6 +9,5 @@
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx",
     "outDir": "./dist",
-    "rootDir": "./src"
   }
 }
