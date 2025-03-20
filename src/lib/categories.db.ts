@@ -196,33 +196,38 @@ export class CategoriesDbClient implements ICategory {
 
   async deleteCategory(slug: Slug): Promise<Result<boolean>> {
     let categoryExists;
-
+  
     try {
       categoryExists = await this.prisma.category.findFirst({
-        where: {
-          slug,
-        },
+        where: { slug },
       });
     } catch (error) {
       this.logger.error('error checking for existing category', slug, error);
       return { ok: false, error: error as Error };
     }
-
+  
     if (!categoryExists) {
       return { ok: true, value: false };
     }
-
+  
     try {
+      await this.prisma.question.deleteMany({
+        where: {
+          categoryId: categoryExists.id,
+        },
+      });
+  
       await this.prisma.category.delete({
         where: {
           slug,
         },
       });
+  
+      return { ok: true, value: true };
     } catch (error) {
-      this.logger.error('error deleting category', slug, error);
+      this.logger.error('error deleting category (or related questions)', slug, error);
       return { ok: false, error: error as Error };
     }
-
-    return { ok: true, value: true };
   }
+  
 }
